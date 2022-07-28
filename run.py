@@ -6,7 +6,7 @@ run.py - run models here
 
 # Imports needed
 from classes import Portfolio
-from models import 
+from models import randomWeightsModel, weightedSumOptimizationModel, markowitzEfficientFrontierModel, optimizeRiskForReturnModel
 
 # --------------------------------- #
 
@@ -14,7 +14,16 @@ from models import
 stockNames = ["ONGC", "HDBK", "TISC"]
 portfolio = Portfolio(stockNames)
 
-for stock in stockNames:
-    portfolio.stockData[stock].plotReturn() # make neater lol
+# --------------------------------- #
+
+# Running Various Models
+
+model = randomWeightsModel(portfolio)
+# model = weightedSumOptimizationModel(portfolio)
+# model = markowitzEfficientFrontierModel(portfolio)
+# model = optimizeRiskForReturnModel(portfolio, 1.7)
+
+model.runAlgorithm()
+model.showGraph()
 
 # --------------------------------- #

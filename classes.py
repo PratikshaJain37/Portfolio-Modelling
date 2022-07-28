@@ -103,16 +103,38 @@ class Portfolio:
 
         return minRisk, minReturn 
 
-    def calculatePortfolioRisk(self):
-        w = np.asmatrix(self.weights)
+    def calculatePortfolioRisk(self, weights=None):
+        if weights is not None:
+            w = np.asmatrix(weights)
+        else:
+            w = np.asmatrix(self.weights)
         c = np.asmatrix(self.covMatrix)
         portfolioVar = w * c * w.T
         # print(portfolioVar.shape)
         portfolioVols = np.sqrt(portfolioVar)[0,0]
         return portfolioVols
 
-    def calculatePortfolioReturn(self):
-        return np.dot(self.weights, self.individualReturns) 
+    def calculatePortfolioReturn(self, weights=None):
+        if weights is not None:
+            return np.dot(weights, self.individualReturns) 
+        else:
+            return np.dot(self.weights, self.individualReturns) 
+        
+
+    def calculatePortfolioCharacteristics(self, weightCombinations, sharpeRatio=False):
+        x = [] 
+        y = []
+        for weights in weightCombinations:
+            self.assignWeights(weights)
+            x.append(self.calculatePortfolioRisk())
+            y.append(self.calculatePortfolioReturn())
+        
+        if not sharpeRatio:
+            return x, y
+        else:
+            sharpe = [x[i]/y[i] for i in range(len(x))]
+            return x,y, sharpe
+
 
     #  expected return vector 
     def calculateMatrixM(self):
