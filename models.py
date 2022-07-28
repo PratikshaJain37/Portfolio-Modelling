@@ -25,6 +25,8 @@ warnings.filterwarnings("ignore")
 
 class portfolioModel:
 
+    # Superclass for all models - the randomly generated markowitz portfolio is for reference so that results of other models can be compared
+
     def __init__(self, portfolio) -> None:
         self.portfolio = portfolio
 
@@ -62,12 +64,18 @@ class randomWeightsModel(portfolioModel):
 
     def runAlgorithm(self, numberOfRandomDataPoints=1000):
 
-        super().runAlgorithm(numberOfRandomDataPoints=1000)
- 
-        self.risks, self.returns, self.weightCombinations = zip(*sorted(zip(self.risks, self.returns, self.weightCombinations)))
+        super().runAlgorithm(numberOfRandomDataPoints)
 
+        # Sorting all the given characteristsics on basis of minimum risk
+        # self.risks, self.returns, self.sharpeRatios, self.weightCombinations = zip(*sorted(zip(self.risks, self.returns, self.sharpeRatios, self.weightCombinations)))
+
+        self.sharpeRatios, self.risks, self.returns, self.weightCombinations = zip(*sorted(zip(self.sharpeRatios, self.risks, self.returns, self.weightCombinations)))
+        print("Minimum Sharpe ratio: ", self.sharpeRatios[0])
+
+
+        # The one with minimum risk (at 0th index) is said to be the optimum
         self.minRiskPortfolio = {"Risks":self.risks[0], "Returns":self.returns[0], "Weights":self.weightCombinations[0]}
-
+    
         prettyPrint(
             self.minRiskPortfolio["Risks"], 
             self.minRiskPortfolio["Returns"], 
@@ -91,12 +99,12 @@ class randomWeightsModel(portfolioModel):
 class weightedSumOptimizationModel(portfolioModel):
 
     def __init__(self, portfolio) -> None:
-        self.portfolio = portfolio
+        super().__init__(portfolio)
     
     def runAlgorithm(self, lenOfLambdas=20):
 
         super().runAlgorithm()
-        # convert to single objective optimization problem - 
+        # converting to single objective optimization problem - 
 
         # The format of solvers.qp(P, q, G, h, A, b)
         # solving:
@@ -143,7 +151,7 @@ class weightedSumOptimizationModel(portfolioModel):
             self.minRiskPortfolio["Returns"], 
             self.minRiskPortfolio["Weights"], 
             self.portfolio.stockNames, 
-            "Point of minimum risk with randomly generated points:")
+            "Point of minimum risk with optimized points:")
         
     def showGraph(self):
         super().showGraph()
@@ -164,7 +172,7 @@ class weightedSumOptimizationModel(portfolioModel):
 class markowitzEfficientFrontierModel(portfolioModel):
 
     def __init__(self, portfolio) -> None:
-        self.portfolio = portfolio
+        super().__init__(portfolio)
 
     def runAlgorithm(self):
 
@@ -179,7 +187,7 @@ class markowitzEfficientFrontierModel(portfolioModel):
             cons = ({'type':'eq', 'fun':self.checkSum},
             {'type':'eq', 'fun': lambda w: self.getReturn(w) - possibleReturn}) 
 
-            result = minimize(self.minimizeVolatility,initGuess,method='SLSQP', bounds=bounds, constraints=cons)
+            result = minimize(self.minimizeVolatility, initGuess, method='SLSQP', bounds=bounds, constraints=cons)
             self.frontierX.append(result['fun'])
 
 
@@ -212,7 +220,7 @@ class markowitzEfficientFrontierModel(portfolioModel):
 class optimizeRiskForReturnModel(portfolioModel):
 
     def __init__(self, portfolio, expectedReturn) -> None:
-        self.portfolio = portfolio
+        super().__init__(portfolio)
         self.expectedReturn = expectedReturn
     
     def runAlgorithm(self):
@@ -245,24 +253,24 @@ class optimizeRiskForReturnModel(portfolioModel):
     def showGraph(self):
         super().showGraph()
 
-        plt.plot(self.optimalPortfolioRisk, self.optimalPortfolioReturn, 'r-p', ms=5, label=f"Optimal for {self.expectedReturn}% return")
+        plt.plot(self.optimalPortfolioRisk, self.optimalPortfolioReturn, 'r-p', ms=10, label=f"Optimal for {self.expectedReturn}% return")
+        plt.title(f"Optimal using optimzer for expected Return of {self.expectedReturn}%")
+        plt.legend()
         plt.show()  
 
 
 # --------------------------------- #
 
 ## TESTING ## 
-# stockNames = ["ONGC", "HDBK", "TISC"]
-# portfolio = Portfolio(stockNames)
-# model = randomWeightsModel(portfolio)
-# model = weightedSumOptimizationModel(portfolio)
+stockNames = ["ONGC", "HDBK", "TISC"]
+portfolio = Portfolio(stockNames)
 
-# model = markowitzEfficientFrontierModel(portfolio)
+model = randomWeightsModel(portfolio)
+# # model = weightedSumOptimizationModel(portfolio)
+# # model = markowitzEfficientFrontierModel(portfolio)
 # model = optimizeRiskForReturnModel(portfolio, 1.7)
 
-# model.runAlgorithm()
-# model.showGraph()
-
-
+model.runAlgorithm()
+model.showGraph()
 
 # --------------------------------- #

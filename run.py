@@ -19,12 +19,19 @@ portfolio = Portfolio(stockNames)
 # Running Various Models
 
 model = randomWeightsModel(portfolio)
-model = weightedSumOptimizationModel(portfolio)
-
-model = markowitzEfficientFrontierModel(portfolio)
-model = optimizeRiskForReturnModel(portfolio, 1.7)
-
 model.runAlgorithm()
 model.showGraph()
+
+# model = weightedSumOptimizationModel(portfolio)
+# model.runAlgorithm()
+# model.showGraph()
+
+# model = markowitzEfficientFrontierModel(portfolio)
+# model.runAlgorithm()
+# model.showGraph()
+
+# model = optimizeRiskForReturnModel(portfolio, 1.7)
+# model.runAlgorithm()
+# model.showGraph()
 
 # --------------------------------- #
